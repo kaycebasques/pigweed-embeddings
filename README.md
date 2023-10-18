@@ -1,0 +1,1 @@
+# embeddingsmanager-example
