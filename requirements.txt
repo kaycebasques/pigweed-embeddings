@@ -1,0 +1,1 @@
+embeddingsmanager @ file:///home/kayce/repos/embeddingsmanager
