@@ -1,1 +1,1 @@
-embeddingsmanager @ file:///home/kayce/repos/embeddingsmanager
+mbedmgr @ file:///home/kayce/repos/mbedmgr

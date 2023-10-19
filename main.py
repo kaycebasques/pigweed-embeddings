@@ -1,3 +1,3 @@
-import embeddingsmanager
+import mbedmgr
 
-sitemap_crawler = embeddingsmanager.SitemapCrawler('https://pigweed.dev/sitemap.xml')
+sitemap_crawler = mbedmgr.SitemapCrawler('https://pigweed.dev/sitemap.xml')
