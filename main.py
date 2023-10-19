@@ -1,4 +1,3 @@
 import embeddingsmanager
 
-sitemap_crawler = embeddingsmanager.SitemapCrawler()
-sitemap_crawler.say_hello()
+sitemap_crawler = embeddingsmanager.SitemapCrawler('https://pigweed.dev/sitemap.xml')
