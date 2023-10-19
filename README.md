@@ -1,1 +1,1 @@
-# embeddingsmanager-example
+# pigweed-embeddings
