@@ -1,8 +1,7 @@
 import mbedmgr
 import json
 
-sitemap_url = 'https://pigweed.dev/sitemap.xml'
-embeddings_manager = mbedmgr.EmbeddingsManager()
-urls = embeddings_manager.scrape_sitemap(sitemap_url)
-data = embeddings_manager.scrape_urls(urls)
-print(json.dumps(data, indent=4))
+manager = mbedmgr.EmbeddingsManager()
+docs_site = manager.add_website_source(source_id='pigweed_dev')
+docs_site.scrape_sitemap('https://pigweed.dev/sitemap.xml')
+docs_site.scrape_urls()
