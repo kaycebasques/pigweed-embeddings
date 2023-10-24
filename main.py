@@ -19,12 +19,11 @@ def preprocess(url: str, data: typing.Dict[str, WebpageData]) -> None:
     # data[url]['text'] = str(main)
     data[url]['text'] = str(uuid.uuid4())
 
-
 manager = mbedmgr.EmbeddingsManager()
 
 docs_site = manager.add_website_source(source_id='pigweed_dev')
 docs_site.get_pages_from_sitemap('https://pigweed.dev/sitemap.xml')
-docs_site.scrape_pages()
-docs_site.set_preprocess_handler(preprocess)
-docs_site.preprocess_pages()
+docs_site.scrape()
+docs_site.preprocess_handler = preprocess
+docs_site.preprocess()
 docs_site.save()
