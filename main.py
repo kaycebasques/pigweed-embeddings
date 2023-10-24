@@ -16,8 +16,14 @@ def preprocess(url: str, data: typing.Dict[str, WebpageData]) -> None:
         style.decompose()
     for link in main.find_all('link'):
         link.decompose()
-    # data[url]['text'] = str(main)
-    data[url]['text'] = str(uuid.uuid4())
+    data[url]['text'] = str(main)
+
+def segment(url: str, data: typing.Dict[str, WebpageData]) -> None:
+    soup = bs4.BeautifulSoup(data[url]['text'], 'html.parser')
+    sections = []
+    for section in soup.find_all('section'):
+        sections.append(str(section))
+    data[url]['sections'] = sections
 
 manager = mbedmgr.EmbeddingsManager()
 
@@ -26,4 +32,9 @@ docs_site.get_pages_from_sitemap('https://pigweed.dev/sitemap.xml')
 docs_site.scrape()
 docs_site.preprocess_handler = preprocess
 docs_site.preprocess()
-docs_site.save()
+docs_site.segment_handler = segment
+docs_site.segment()
+for section in docs_site.data['https://pigweed.dev/index.html']['sections']:
+    print(section)
+    print()
+    print()
