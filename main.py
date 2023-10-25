@@ -27,14 +27,14 @@ def segment(url: str, data: typing.Dict[str, WebpageData]) -> None:
 
 manager = mbedmgr.EmbeddingsManager()
 
-docs_site = manager.add_website_source(source_id='pigweed_dev')
+docs_site = manager.add_website_source(source_id='https://pigweed.dev')
 docs_site.get_pages_from_sitemap('https://pigweed.dev/sitemap.xml')
-docs_site.scrape()
 docs_site.preprocess_handler = preprocess
-docs_site.preprocess()
 docs_site.segment_handler = segment
-docs_site.segment()
-for section in docs_site.data['https://pigweed.dev/index.html']['sections']:
+
+manager.generate()
+
+for section in docs_site.data['https://pigweed.dev/docker/docs.html']['sections']:
     print(section)
     print()
     print()
