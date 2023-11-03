@@ -25,16 +25,21 @@ def segment(url: str, data: typing.Dict[str, WebpageData]) -> None:
         sections.append(str(section))
     data[url]['sections'] = sections
 
+def embed(url: str, data: typing.Dict[str, WebpageData]) -> None:
+    print('EMBED AHOY!!')
+    # DEBUG
+    if url != 'https://pigweed.dev/docs/glossary.html':
+        return
+    # ENDDEBUG
+    for section in data[url]['sections']:
+        print(section)
+
 manager = mbedmgr.EmbeddingsManager()
 
 docs_site = manager.add_website_source(source_id='https://pigweed.dev')
 docs_site.get_pages_from_sitemap('https://pigweed.dev/sitemap.xml')
 docs_site.preprocess_handler = preprocess
 docs_site.segment_handler = segment
+docs_site.embed_handler = embed
 
 manager.generate()
-
-for section in docs_site.data['https://pigweed.dev/docker/docs.html']['sections']:
-    print(section)
-    print()
-    print()
