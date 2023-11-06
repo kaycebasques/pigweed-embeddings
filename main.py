@@ -1,8 +1,13 @@
-import mbedmgr
-import json
-import bs4
 import typing
-import uuid  # DEBUG
+import hashlib
+import json
+
+import bs4
+import tiktoken
+import mbedmgr
+
+token_encoder = tiktoken.get_encoding('cl100k_base')
+max_token_count = 8191
 
 class WebpageData(typing.TypedDict):
     text: str
@@ -18,6 +23,7 @@ def preprocess(url: str, data: typing.Dict[str, WebpageData]) -> None:
         link.decompose()
     data[url]['text'] = str(main)
 
+# TODO: Store segments in database at this point?
 def segment(url: str, data: typing.Dict[str, WebpageData]) -> None:
     soup = bs4.BeautifulSoup(data[url]['text'], 'html.parser')
     sections = []
@@ -26,13 +32,10 @@ def segment(url: str, data: typing.Dict[str, WebpageData]) -> None:
     data[url]['sections'] = sections
 
 def embed(url: str, data: typing.Dict[str, WebpageData]) -> None:
-    print('EMBED AHOY!!')
-    # DEBUG
-    if url != 'https://pigweed.dev/docs/glossary.html':
-        return
-    # ENDDEBUG
     for section in data[url]['sections']:
-        print(section)
+        checksum = hashlib.md5(section.encode('utf-8')).hexdigest()
+        token_count = len(token_encoder.encode(section))
+        print(f'{checksum} - {token_count}')
 
 manager = mbedmgr.EmbeddingsManager()
 
