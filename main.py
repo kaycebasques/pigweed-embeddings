@@ -1,14 +1,8 @@
-import typing
-import hashlib
-import json
-import time
-import os
-
 import bs4
-import tiktoken
 import mbedmgr
-import dotenv
-import supabase
+
+import database
+import utilities
 
 def preprocess(url, data):
     soup = bs4.BeautifulSoup(data[url]['text'], 'html.parser')
@@ -21,48 +15,22 @@ def preprocess(url, data):
         link.decompose()
     data[url]['text'] = str(main)
 
-# TODO: Rename the data arg or figure out some way to prevent against
-# accidentally overwriting the data coming from mbedmgr...
 def segment(url, data):
-    table_name = 'embeddings'
     soup = bs4.BeautifulSoup(data[url]['text'], 'html.parser')
     sections = []
     for section in soup.find_all('section'):
-        section = str(section)
-        checksum = hashlib.md5(section.encode('utf-8')).hexdigest()
-        token_count = len(token_encoder.encode(section))
-        # Skip the section if it's too big to convert into an embedding.
-        if token_count > max_token_count:
-            continue
-        sections.append(section)
-        timestamp = int(time.time())
-        rows = database.table(table_name).select('*').eq('checksum', checksum).execute()
-        exists = True if len(rows.data) > 0 else False
-        if exists:
-            database.table(table_name).update({'timestamp': timestamp}).eq('checksum', checksum).execute()
-        else:
-            database.table(table_name).insert({
-                'checksum': checksum,
-                'type': 'web',
-                'token_count': len(token_encoder.encode(section)),
-                'content': section,
-                'url': url,
-                'timestamp': timestamp
-            }).execute()
+        sections.append(str(section))
     data[url]['sections'] = sections
 
 def embed(url, data):
+    db = database.Database()
     for section in data[url]['sections']:
         checksum = hashlib.md5(section.encode('utf-8')).hexdigest()
+        # check if section exists in db
+        # update timestamp if yes
+        # create row if no
+        # create embedding as part of create row process
         print(checksum)
-
-
-# Init.
-dotenv.load_dotenv()
-database = supabase.create_client(
-    supabase_url=os.environ.get('SUPABASE_URL'),
-    supabase_key=os.environ.get('SUPABASE_KEY')
-)
 
 # Main vars.
 token_encoder = tiktoken.get_encoding('cl100k_base')
