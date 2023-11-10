@@ -1,3 +1,5 @@
+import os
+
 import dotenv
 import supabase
 

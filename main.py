@@ -1,5 +1,9 @@
+import os
+
 import bs4
 import mbedmgr
+import openai
+import dotenv
 
 import database
 import utilities
@@ -23,22 +27,25 @@ def segment(url, data):
     data[url]['sections'] = sections
 
 def embed(url, data):
+    max_token_count = 8191
+    model = 'text-embedding-ada-002'
+    if url != 'https://pigweed.dev/docs/get_started/bazel.html':
+        return
     db = database.Database()
     for section in data[url]['sections']:
-        checksum = hashlib.md5(section.encode('utf-8')).hexdigest()
-        # check if section exists in db
-        # update timestamp if yes
-        # create row if no
-        # create embedding as part of create row process
-        print(checksum)
+        if utilities.token_count(section) > max_token_count:
+            continue
+        if db.exists(content=section):
+            db.update_timestamp(content=section)
+        else:
+            response = openai.Embedding.create(input=section, model=model)
+            embedding = response['data'][0]['embedding']
+            db.add(content=section, content_type='web', url=url, embedding=embedding)
 
-# Main vars.
-token_encoder = tiktoken.get_encoding('cl100k_base')
-max_token_count = 8191
-embedding_model = 'text-embedding-ada-002'
+dotenv.load_dotenv()
+openai.api_key = os.environ.get('OPENAI_KEY')
+
 manager = mbedmgr.EmbeddingsManager()
-
-# Generate embeddings for the official docs.
 docs_site = manager.add_website_source(source_id='https://pigweed.dev')
 docs_site.get_pages_from_sitemap('https://pigweed.dev/sitemap.xml')
 docs_site.preprocess_handler = preprocess
