@@ -18,15 +18,17 @@ def main():
 
     # Official docs manager
     # docs_site = manager.add_website_source(source_id='pigweed.dev')
-    # docs_site.get_pages_from_sitemap('https://pigweed.dev/sitemap.xml')
+    # docs_site.set_pages_from_sitemap('https://pigweed.dev/sitemap.xml')
     # docs_site.preprocess_handler = docs_manager.preprocess
     # docs_site.segment_handler = docs_manager.segment
     # docs_site.embed_handler = docs_manager.embed
 
     # Bugs manager
-    # bugs = manager.add_website_source(source_id='issues.pigweed.dev')
+    bugs = manager.add_website_source(source_id='issues.pigweed.dev')
     bug_urls = bugs_manager.get_urls()
-    pprint.pprint(bug_urls)
+    bugs.set_pages(bug_urls)
+    bugs.set_segment_handler = False
+    bugs.set_embed_handler = False
 
     # GitHub source code manager
     # github = manager.add_github_source('google', 'pigweed', 'main')
@@ -35,7 +37,7 @@ def main():
     # github.embed_handler = github_manager.embed
 
     # Generate embeddings for all the sources!
-    # manager.generate()
+    manager.generate()
 
 if __name__ == '__main__':
     main()

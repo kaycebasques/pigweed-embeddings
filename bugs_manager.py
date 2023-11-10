@@ -18,7 +18,7 @@ def get_urls():
         # TODO: The magic number 25 is based on me just checking how many
         # pages of open bugs there are. Maybe we should have an automated
         # way of detecting this...
-        for page_number in range(5):
+        for page_number in range(3):
             url = url_pattern.format(page_number)
             # TODO: Switch to multi-threaded impl...
             page.goto(url, wait_until='networkidle')
@@ -33,3 +33,13 @@ def get_urls():
         page.close()
         browser.close()
     return urls
+
+def preprocess(url, mgr):
+    page = mgr.get_page(url)
+    text = page['text']
+    soup = bs4.BeautifulSoup(text, 'html.parser')
+    body = soup.find('body')
+    for tag_name in ['script', 'style', 'link']:
+        for useless_tag in body.find_all(tag_name):
+            useless_tag.decompose()
+    mgr.set_page(url, str(body))
