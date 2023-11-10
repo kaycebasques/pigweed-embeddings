@@ -12,3 +12,9 @@ def token_count(content):
 
 def timestamp():
     return int(time.time())
+
+def max_token_count():
+    return 8191
+
+def embedding_model():
+    return 'text-embedding-ada-002'
