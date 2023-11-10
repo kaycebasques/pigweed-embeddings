@@ -48,9 +48,17 @@ dotenv.load_dotenv()
 openai.api_key = os.environ.get('OPENAI_KEY')
 
 manager = mbedmgr.EmbeddingsManager()
-docs_site = manager.add_website_source(source_id='https://pigweed.dev')
-docs_site.get_pages_from_sitemap('https://pigweed.dev/sitemap.xml')
-docs_site.preprocess_handler = preprocess
-docs_site.segment_handler = segment
-docs_site.embed_handler = embed
-manager.generate()
+
+# docs_site = manager.add_website_source(source_id='https://pigweed.dev')
+# docs_site.get_pages_from_sitemap('https://pigweed.dev/sitemap.xml')
+# docs_site.preprocess_handler = preprocess
+# docs_site.segment_handler = segment
+# docs_site.embed_handler = embed
+
+github = manager.add_github_source('google', 'pigweed', 'main')
+github.include = ['pw_tokenizer/*.rst']
+github.ignore = ['third_party/*']
+github.find()
+github.scrape()
+
+# manager.generate()
