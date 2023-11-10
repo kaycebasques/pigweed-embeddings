@@ -34,12 +34,15 @@ def get_urls():
         browser.close()
     return urls
 
-def preprocess(url, mgr):
-    page = mgr.get_page(url)
-    text = page['text']
-    soup = bs4.BeautifulSoup(text, 'html.parser')
-    body = soup.find('body')
-    for tag_name in ['script', 'style', 'link']:
-        for useless_tag in body.find_all(tag_name):
-            useless_tag.decompose()
-    mgr.set_page(url, str(body))
+def scrape(url, mgr):
+    print(f'custom scraper for {url}')
+    html = None
+    with playwright.sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(url, wait_until='networkidle')
+        html = page.content()
+        page.close()
+        browser.close()
+    print(html)
+    mgr.set_page_text(url, html)

@@ -27,8 +27,9 @@ def main():
     bugs = manager.add_website_source(source_id='issues.pigweed.dev')
     bug_urls = bugs_manager.get_urls()
     bugs.set_pages(bug_urls)
-    bugs.set_segment_handler = False
-    bugs.set_embed_handler = False
+    bugs.scrape_handler = bugs_manager.scrape
+    bugs.segment_handler = False
+    bugs.embed_handler = False
 
     # GitHub source code manager
     # github = manager.add_github_source('google', 'pigweed', 'main')
