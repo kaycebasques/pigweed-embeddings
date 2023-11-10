@@ -30,8 +30,6 @@ def embed(url, data):
     openai_client = openai.OpenAI(api_key=os.environ.get('OPENAI_KEY'))
     max_token_count = 8191
     model = 'text-embedding-ada-002'
-    if url != 'https://pigweed.dev/docs/get_started/bazel.html':
-        return
     db = database.Database()
     for section in data[url]['sections']:
         if utilities.token_count(section) > max_token_count:
