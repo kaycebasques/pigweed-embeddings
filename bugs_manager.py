@@ -34,18 +34,24 @@ def get_urls():
         browser.close()
     return urls
 
-def scrape(url, mgr):
-    print(f'custom scraper for {url}')
-    html = None
+def scrape(url, data):
     with playwright.sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
-        page.goto(url, wait_until='networkidle')
+        page.goto(url, wait_until='load')
         html = page.content()
+        data['text'] = html
         page.close()
         browser.close()
-    print(html)
-    mgr.set_page_text(url, html)
 
-
-# TODO create preprocess handler that narrows down to article[role="main"]
+def preprocess(url, data):
+    original_text = data['text']
+    soup = bs4.BeautifulSoup(original_text, 'html.parser')
+    body = soup.find('body')
+    if body is None:
+        return
+    for tag_name in ['script', 'style', 'link']:
+        for useless_tag in body.find_all(tag_name):
+            useless_tag.decompose()
+    preprocessed_text = str(body)
+    data['text'] = preprocessed_text
