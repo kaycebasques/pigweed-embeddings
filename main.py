@@ -27,6 +27,7 @@ def segment(url, data):
     data[url]['sections'] = sections
 
 def embed(url, data):
+    openai_client = openai.OpenAI(api_key=os.environ.get('OPENAI_KEY'))
     max_token_count = 8191
     model = 'text-embedding-ada-002'
     if url != 'https://pigweed.dev/docs/get_started/bazel.html':
@@ -35,14 +36,17 @@ def embed(url, data):
     for section in data[url]['sections']:
         if utilities.token_count(section) > max_token_count:
             continue
-        if db.exists(content=section):
+        if db.row_exists(content=section):
             db.update_timestamp(content=section)
         else:
-            response = openai.Embedding.create(input=section, model=model)
-            embedding = response['data'][0]['embedding']
+            embedding = openai_client.embeddings.create(
+                input=section,
+                model='text-embedding-ada-002'
+            ).data[0].embedding
             db.add(content=section, content_type='web', url=url, embedding=embedding)
 
 dotenv.load_dotenv()
+
 openai.api_key = os.environ.get('OPENAI_KEY')
 
 manager = mbedmgr.EmbeddingsManager()

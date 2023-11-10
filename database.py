@@ -22,7 +22,7 @@ class Database:
             utilities.checksum(content)
         ).execute()
 
-    def exists(content=None):
+    def row_exists(self, content=None):
         try:
             checksum = utilities.checksum(content)
             rows = self._table.select('*').eq('checksum', checksum).execute()
@@ -30,7 +30,7 @@ class Database:
         except Exception as e:
             return False
 
-    def add(self, content=None, url=None, content_type=None):
+    def add(self, content=None, url=None, content_type=None, embedding=None):
         try:
             self._table.insert({
                 'checksum': utilities.checksum(content),
@@ -38,7 +38,8 @@ class Database:
                 'token_count': utilities.token_count(content),
                 'content': content,
                 'url': url,
-                'timestamp': utilities.timestamp()
+                'timestamp': utilities.timestamp(),
+                'embedding': embedding
             }).execute()
         except Exception as e:
             return None
