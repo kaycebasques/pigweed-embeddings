@@ -46,3 +46,6 @@ def scrape(url, mgr):
         browser.close()
     print(html)
     mgr.set_page_text(url, html)
+
+
+# TODO create preprocess handler that narrows down to article[role="main"]

@@ -1,5 +1,5 @@
 import os
-import pprint
+import json
 
 import bs4
 import mbedmgr
@@ -18,7 +18,7 @@ def main():
 
     # Official docs manager
     # docs_site = manager.add_website_source(source_id='pigweed.dev')
-    # docs_site.set_pages_from_sitemap('https://pigweed.dev/sitemap.xml')
+    # docs_site.sitemap = 'https://pigweed.dev/sitemap.xml'
     # docs_site.preprocess_handler = docs_manager.preprocess
     # docs_site.segment_handler = docs_manager.segment
     # docs_site.embed_handler = docs_manager.embed
@@ -26,10 +26,12 @@ def main():
     # Bugs manager
     bugs = manager.add_website_source(source_id='issues.pigweed.dev')
     bug_urls = bugs_manager.get_urls()
-    bugs.set_pages(bug_urls)
+    bugs.pages = bug_urls
     bugs.scrape_handler = bugs_manager.scrape
+    # TODO create preprocess handler that narrows down to article[role="main"]
     bugs.segment_handler = False
     bugs.embed_handler = False
+    print(json.dumps(bugs.pages, indent=4))
 
     # GitHub source code manager
     # github = manager.add_github_source('google', 'pigweed', 'main')
