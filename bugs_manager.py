@@ -9,6 +9,19 @@ import playwright.sync_api as playwright
 import database
 import utilities
 
+
+# Couldn't get the scraping working. This was the usage in main.py:
+# bugs = manager.add_website_source(source_id='issues.pigweed.dev')
+# bug_urls = bugs_manager.get_urls()
+# bugs.pages = bug_urls
+# bugs.scrape_handler = bugs_manager.scrape
+# bugs.preprocess_handler = bugs_manager.preprocess
+# bugs.segment_handler = False
+# bugs.embed_handler = False
+# print(json.dumps(bugs.pages, indent=4))
+
+
+
 def get_urls():
     url_pattern = 'https://issues.pigweed.dev/issues?q=status:open&p={}'
     urls = []

@@ -23,15 +23,6 @@ def main():
     # docs_site.segment_handler = docs_manager.segment
     # docs_site.embed_handler = docs_manager.embed
 
-    # Bugs manager
-    bugs = manager.add_website_source(source_id='issues.pigweed.dev')
-    bug_urls = bugs_manager.get_urls()
-    bugs.pages = bug_urls
-    bugs.scrape_handler = bugs_manager.scrape
-    bugs.preprocess_handler = bugs_manager.preprocess
-    bugs.segment_handler = False
-    bugs.embed_handler = False
-    print(json.dumps(bugs.pages, indent=4))
 
     # GitHub source code manager
     # github = manager.add_github_source('google', 'pigweed', 'main')
