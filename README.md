@@ -83,5 +83,6 @@ deactivate
 * Took 3 mins 22 secs to index pigweed.dev resulting in 1864 rows
   * 3 mins 22 secs = 202 secs
   * 202 / 1864 = 0.11 secs per item
+* Second attempt took 5 mins
 * bazel setup instructions is an example of good regurgitative instructions
 * what is pigweed? reply in portuguese

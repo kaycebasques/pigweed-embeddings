@@ -15,6 +15,13 @@ class Database:
         )
         self._table = self._db.table('embeddings')
 
+    def get_checksums(self):
+        checksums = []
+        response = self._table.select('checksum').execute()
+        for row in response.data:
+            checksums.append(row['checksum'])
+        return checksums
+
     def update_timestamp(self, content=None):
         self._table.update({
             'timestamp': utilities.timestamp()
@@ -24,12 +31,8 @@ class Database:
         ).execute()
 
     def row_exists(self, content=None):
-        try:
-            checksum = utilities.checksum(content)
-            rows = self._table.select('*').eq('checksum', checksum).execute()
-            return True if len(rows.data) > 0 else False
-        except Exception as e:
-            return False
+        checksum = utilities.checksum(content)
+        return True if checksum in self._checksums else False
 
     def add(self, content=None, url=None, content_type=None, embedding=None):
         try:
