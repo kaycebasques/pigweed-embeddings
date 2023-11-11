@@ -23,11 +23,13 @@ embedding = openai_client.embeddings.create(
 
 # Get docs related to the query.
 current_token_count = 0
-max_token_count = 100000
+max_token_count = 50000
 prompt = f'Reply to this input from the user: {query}\n\n'
 prompt += 'The rest of this prompt is context that should be used in your reply.\n\n'
-supabase_response = database.rpc('similarity_search', {'query': embedding, 'threshold': 0.8, 'count': 1000}).execute()
+supabase_response = database.rpc('similarity_search', {'query': embedding, 'threshold': 0.6, 'count': 1000}).execute()
+n = 0
 for item in supabase_response.data:
+    n += 1
     content = item['content']
     url = item['url']
     token_count = item['token_count']
@@ -35,6 +37,9 @@ for item in supabase_response.data:
     if current_token_count < max_token_count:
         prompt += f'{content}\n\n'
         prompt += f'{url}\n\n'
+        prompt += f'********************************* n = {n} *****************************'
+
+# print(prompt)
 
 # Generate a reply.
 openai_response = openai_client.chat.completions.create(
