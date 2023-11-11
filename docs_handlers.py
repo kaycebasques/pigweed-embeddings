@@ -17,15 +17,15 @@ def preprocess(mgr, url):
     mgr.set_text(url, new_text)
 
 def segment(mgr, url):
-    text = mgr.get_text(page_url)
+    text = mgr.get_text(url)
     soup = bs4.BeautifulSoup(text, 'html.parser')
     for section in soup.find_all('section'):
         segment_text = str(section)
-        segment_id = section.get('id')
-        if not segment_id:
+        section_id = section.get('id')
+        if not section_id:
             continue
-        segment_url = f'{url}#{segment_id}'
-        mgr.set_segment(segment_url, segment)
+        segment_url = f'{url}#{section_id}'
+        mgr.set_segment(segment_url, segment_text)
 
 def embed(mgr, url, text, checksums):
     openai_client = openai.OpenAI(api_key=os.environ.get('OPENAI_KEY'))
