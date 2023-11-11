@@ -5,9 +5,8 @@ import bs4
 import mbedmgr
 import dotenv
 
-import docs_manager
+import docs_handlers
 import github_handlers
-import bugs_manager
 import database
 
 def main():
@@ -21,18 +20,17 @@ def main():
     manager = mbedmgr.EmbeddingsManager(checksums)
 
     # Official docs manager
-    # docs_site = manager.add_website_source(source_id='pigweed.dev')
-    # docs_site.set_sitemap('https://pigweed.dev/sitemap.xml')
-    # docs_site.scrape_pages_from_sitemap()
-    # docs_site.set_preprocess_handler(docs_manager.preprocess)
-    # docs_site.set_segment_handler(docs_manager.segment)
-    # docs_site.set_embed_handler(docs_manager.embed)
+    docs = manager.add_website_source(source_id='pigweed.dev')
+    docs.scrape_urls_from_sitemap('https://pigweed.dev/sitemap.xml')
+    docs.set_preprocess_handler(docs_handlers.preprocess)
+    docs.set_segment_handler(docs_handlers.segment)
+    docs.set_embed_handler(docs_handlers.embed)
 
     # GitHub source code manager
     include = ['pw_string/*.h']
     exclude = ['third_party/*']
-    github_manager = manager.add_github_source('google', 'pigweed', 'main', include, exclude)
-    github_manager.set_embed_handler(github_handlers.embed)
+    github = manager.add_github_source('google', 'pigweed', 'main', include, exclude)
+    github.set_embed_handler(github_handlers.embed)
 
     # Generate embeddings for all the sources!
     manager.generate()
