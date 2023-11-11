@@ -5,7 +5,11 @@ import openai
 import database
 import utilities
 
-def embed(url, content):
+# TODO need the URL not the path
+def embed(mgr, path, text, checksums):
+    print('in correct embed')
+    print(path)
+    return
     openai_client = openai.OpenAI(api_key=os.environ.get('OPENAI_KEY'))
     db = database.Database()
     if utilities.token_count(content) > utilities.max_token_count():

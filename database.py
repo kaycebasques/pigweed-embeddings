@@ -6,6 +6,9 @@ import supabase
 
 import utilities
 
+# Keep in mind that this class is instantiated many, many times.
+# I.e. the initializer shouldn't do anything intensive, such as
+# getting all the checksums.
 class Database:
     def __init__(self):
         dotenv.load_dotenv()

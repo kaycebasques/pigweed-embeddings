@@ -18,8 +18,7 @@ def main():
     checksums = db.get_checksums()
 
     # Central manager that coordinates the other managers
-    manager = mbedmgr.EmbeddingsManager()
-    manager.set_checksums(checksums)
+    manager = mbedmgr.EmbeddingsManager(checksums)
 
     # Official docs manager
     # docs_site = manager.add_website_source(source_id='pigweed.dev')
@@ -30,13 +29,13 @@ def main():
     # docs_site.set_embed_handler(docs_manager.embed)
 
     # GitHub source code manager
-    include = ['*.h']
+    include = ['pw_string/*.h']
     exclude = ['third_party/*']
     github_manager = manager.add_github_source('google', 'pigweed', 'main', include, exclude)
     github_manager.set_embed_handler(github_handlers.embed)
 
     # Generate embeddings for all the sources!
-    # manager.generate()
+    manager.generate()
 
     # db.prune()
 
