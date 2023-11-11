@@ -6,7 +6,7 @@ import mbedmgr
 import dotenv
 
 import docs_manager
-import github_manager
+import github_handlers
 import bugs_manager
 import database
 
@@ -22,23 +22,23 @@ def main():
     manager.set_checksums(checksums)
 
     # Official docs manager
-    docs_site = manager.add_website_source(source_id='pigweed.dev')
-    docs_site.set_sitemap('https://pigweed.dev/sitemap.xml')
-    docs_site.scrape_pages_from_sitemap()
-    docs_site.set_preprocess_handler(docs_manager.preprocess)
-    docs_site.set_segment_handler(docs_manager.segment)
-    docs_site.set_embed_handler(docs_manager.embed)
+    # docs_site = manager.add_website_source(source_id='pigweed.dev')
+    # docs_site.set_sitemap('https://pigweed.dev/sitemap.xml')
+    # docs_site.scrape_pages_from_sitemap()
+    # docs_site.set_preprocess_handler(docs_manager.preprocess)
+    # docs_site.set_segment_handler(docs_manager.segment)
+    # docs_site.set_embed_handler(docs_manager.embed)
 
     # GitHub source code manager
-    # github = manager.add_github_source('google', 'pigweed', 'main')
-    # github.include = ['*.h']
-    # github.ignore = ['third_party/*']
-    # github.embed_handler = github_manager.embed
+    include = ['*.h']
+    exclude = ['third_party/*']
+    github_manager = manager.add_github_source('google', 'pigweed', 'main', include, exclude)
+    github_manager.set_embed_handler(github_handlers.embed)
 
     # Generate embeddings for all the sources!
-    manager.generate()
+    # manager.generate()
 
-    db.prune()
+    # db.prune()
 
 if __name__ == '__main__':
     main()
