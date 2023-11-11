@@ -15,11 +15,11 @@ def main():
     dotenv.load_dotenv()
 
     db = database.Database()
-    # TODO: Pass these checksums to the manager upon initialization...
     checksums = db.get_checksums()
 
     # Central manager that coordinates the other managers
     manager = mbedmgr.EmbeddingsManager()
+    manager.set_checksums(checksums)
 
     # Official docs manager
     docs_site = manager.add_website_source(source_id='pigweed.dev')

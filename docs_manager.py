@@ -27,14 +27,14 @@ def segment(page_url, mgr):
         segment_url = f'{page_url}#{section_id}'
         mgr.set_segment(segment_url, segment)
 
-def embed(url, text):
+def embed(url, text, checksums):
     openai_client = openai.OpenAI(api_key=os.environ.get('OPENAI_KEY'))
     max_token_count = 8191
     model = 'text-embedding-ada-002'
     db = database.Database()
     if utilities.token_count(text) > max_token_count:
         return
-    if db.row_exists(content=text):
+    if db.row_exists(content=text, checksums=checksums):
         db.update_timestamp(content=text)
     else:
         embedding = openai_client.embeddings.create(

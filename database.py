@@ -30,9 +30,16 @@ class Database:
             utilities.checksum(content)
         ).execute()
 
-    def row_exists(self, content=None):
+    def row_exists(self, content, checksums=None):
         checksum = utilities.checksum(content)
-        return True if checksum in self._checksums else False
+        if checksums:
+            return True if checksum in checksums else False
+        else:
+            try:
+                rows = self._table.select('*').eq('checksum', checksum).execute()
+                return True if len(rows.data) > 0 else False
+            except Exception as e:
+                return False
 
     def add(self, content=None, url=None, content_type=None, embedding=None):
         try:
