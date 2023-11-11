@@ -8,6 +8,7 @@ import dotenv
 import docs_manager
 import github_manager
 import bugs_manager
+import database
 
 def main():
     # Init
@@ -23,7 +24,6 @@ def main():
     # docs_site.segment_handler = docs_manager.segment
     # docs_site.embed_handler = docs_manager.embed
 
-
     # GitHub source code manager
     # github = manager.add_github_source('google', 'pigweed', 'main')
     # github.include = ['*.h']
@@ -31,7 +31,10 @@ def main():
     # github.embed_handler = github_manager.embed
 
     # Generate embeddings for all the sources!
-    manager.generate()
+    # manager.generate()
+
+    db = database.Database()
+    db.prune()
 
 if __name__ == '__main__':
     main()

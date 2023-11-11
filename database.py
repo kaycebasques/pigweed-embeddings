@@ -1,4 +1,5 @@
 import os
+import time
 
 import dotenv
 import supabase
@@ -43,3 +44,9 @@ class Database:
             }).execute()
         except Exception as e:
             return None
+
+    def prune(self):
+        one_day_in_seconds = 60 * 60 * 24
+        current_time = int(time.time())
+        max_age = current_time - one_day_in_seconds
+        self._table.delete().lt('timestamp', max_age).execute()
