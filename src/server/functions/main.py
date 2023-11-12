@@ -118,6 +118,9 @@ def create_message_with_context(message):
 
 @app.get('/')
 def hello_world():
+    print(environ.get('SUPABASE_URL'))
+    print(environ.get('SUPABASE_KEY'))
+    print(environ.get('OPENAI_KEY'))
     return 'Hello, world!'
 
 @https_fn.on_request(timeout_sec=120, memory=options.MemoryOption.GB_4)
