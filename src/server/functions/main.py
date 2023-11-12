@@ -116,7 +116,7 @@ def create_message_with_context(message):
         msg += f"{item['url']}\n\n"
     return msg
 
-@https_fn.on_request(timeout_sec=120, memory=options.MemoryOption.GB_1)
+@https_fn.on_request(timeout_sec=120, memory=options.MemoryOption.GB_8)
 def server(req):
     with app.request_context(req.environ):
         return app.full_dispatch_request()
