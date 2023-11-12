@@ -120,7 +120,7 @@ def create_message_with_context(message):
 def hello_world():
     return 'Hello, world!'
 
-@https_fn.on_request(timeout_sec=120, memory=options.MemoryOption.GB_8)
+@https_fn.on_request(timeout_sec=120, memory=options.MemoryOption.GB_4)
 def server(req):
     with app.request_context(req.environ):
         return app.full_dispatch_request()
