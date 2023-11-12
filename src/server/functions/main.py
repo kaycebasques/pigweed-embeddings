@@ -20,6 +20,58 @@ CORS(app)
 def hello_world():
     return 'Hello, world!'
 
+@app.post('/retrieve')
+def retrieve():
+    data = request.get_json()
+    thread_id = data['thread_id']
+    run_id = data['run_id']
+    assistant_id = data['assistant_id']
+    status = openai.beta.threads.runs.retrieve(
+        thread_id=thread_id,
+        run_id=run_id
+    )
+    response = {
+        'thread_id': thread_id,
+        'run_id': run_id,
+        'assistant_id': assistant_id,
+        'done': False
+    }
+    if status.status == 'completed':
+        messages = openai.beta.threads.messages.list(thread_id=thread_id)
+        print(messages['data'])
+        print(messages.data[0].content[0].text.value)
+        response['done'] = True
+    return response
+
+@app.post('/chat')
+def chat():
+    data = request.get_json()
+    query = data['query']
+    thread_id = data['thread_id']
+    thread = openai.beta.threads.create() if thread_id is None else openai.beta.threads.retrieve(thread_id)
+    instructions = 'Help the user build embedded software with Pigweed.'
+    assistant = openai.beta.assistants.create(
+        name='Pigweed Assistant',
+        instructions=instructions,
+        tools=[{'type': 'code_interpreter'}],
+        model='gpt-4-1106-preview'
+    )
+    message = openai.beta.threads.messages.create(
+        thread_id=thread.id,
+        role='user',
+        content=query
+    )
+    run = openai.beta.threads.runs.create(
+        thread_id=thread.id,
+        assistant_id=assistant.id,
+        instructions=instructions
+    )
+    return {
+        'thread_id': thread.id,
+        'run_id': run.id,
+        'assistant_id': assistant.id
+    }
+
 @app.post('/context')
 def context():
     data = request.get_json()
