@@ -17,6 +17,7 @@ supabase = create_client(
 openai = OpenAI(api_key=environ.get('OPENAI_KEY'))
 app = Flask(__name__)
 CORS(app)
+delimiter = '@&$%&$@&%$@@%&$&&&@%$'
 
 def get_chat_model():
     return 'gpt-4-1106-preview'
@@ -44,20 +45,25 @@ def summarize():
     data = request.get_json()
     thread_id = data['thread_id']
     assistant_id = data['assistant_id']
+    url = data['url']
     text = data['text']
     # TODO: Divide and conquer the huge texts with recursive summaries...
     if len(text) > 32768:
         text = text[0:32765]
     thread = get_or_create_thread(thread_id)
     assistant = get_or_create_assistant(assistant_id)
-    openai.beta.threads.messages.create(thread_id=thread.id, role='user', content=text)
-    instructions = 'Summarize the text that the user provided.'
+    content = f'Summarize {url}\n\n{delimiter}\n\n{text}'
+    openai.beta.threads.messages.create(thread_id=thread.id, role='user', content=content)
+    instructions = f'Summarize the text below the delimiter. The delimiter is {delimiter}.'
     run = openai.beta.threads.runs.create(thread_id=thread.id, assistant_id=assistant.id, instructions=instructions)
     return {
         'thread_id': thread.id,
         'run_id': run.id,
         'assistant_id': assistant.id
     }
+
+def to_markdown(text):
+    return markdown(text, extensions=['extra'])
 
 @app.post('/retrieve')
 def retrieve():
@@ -69,27 +75,40 @@ def retrieve():
     if run.status == 'completed':
         messages = openai.beta.threads.messages.list(thread_id=thread_id)
         message = messages.data[0].content[0].text.value
-        response['message'] = markdown(message, extensions=['extra'])
+        response['message'] = to_markdown(message)
         response['done'] = True
     return response
 
-@app.post('/chat')
-def chat():
+def remove_context(text, role):
+    # Only the user's messages will potentially have context.
+    if role != 'user':
+        return text
+    if delimiter not in text:
+        return text
+    end = text.index(delimiter)
+    return text[0:end]
+
+@app.post('/history')
+def history():
     data = request.get_json()
-    message = data['message']
-    message_with_context = create_message_with_context(message)
     thread_id = data['thread_id']
-    assistant_id = data['assistant_id']
-    thread = get_or_create_thread(thread_id)
-    assistant = get_or_create_assistant(assistant_id)
-    openai.beta.threads.messages.create(thread_id=thread.id, role='user', content=message_with_context)
-    instructions = "Reply to the user's message. Reference the context that is provided below the user's message."
-    run = openai.beta.threads.runs.create(thread_id=thread.id, assistant_id=assistant.id, instructions=instructions)
-    return {
-        'thread_id': thread.id,
-        'run_id': run.id,
-        'assistant_id': assistant.id
-    }
+    response = {'history': []}
+    try:
+        messages = openai.beta.threads.messages.list(thread_id=thread_id)
+    except Exception as e:
+        print(e)
+        return response
+    for message in messages.data:
+        role = message.role
+        msg = remove_context(message.content[0].text.value, role)
+        if role == 'assistant':
+            msg = to_markdown(msg)
+        response['history'].append({
+            'role': role,
+            'message': msg
+        })
+    response['history'].reverse()
+    return response
 
 def create_message_with_context(message):
     model = get_embedding_model()
@@ -104,8 +123,9 @@ def create_message_with_context(message):
         }
     ).execute()
     items = []
-    msg = f'Reply to the following message from the user:\n\n{message}\n\n'
-    msg += 'Reference the following context in your reply:\n\n'
+    msg = f'{message}\n\n{delimiter}\n\n'
+    # TODO: Try "IF AND ONLY IF"
+    msg += f'Reply to the message above the delimiter. Use the context below the delimiter in your reply. The delimiter is {delimiter}.\n\n'
     max_length = 32000
     for item in database_response.data:
         content = item['content']
@@ -116,6 +136,24 @@ def create_message_with_context(message):
         msg += f"{item['content']}\n\n"
         msg += f"{item['url']}\n\n"
     return msg
+
+@app.post('/chat')
+def chat():
+    data = request.get_json()
+    message = data['message']
+    message_with_context = create_message_with_context(message)
+    thread_id = data['thread_id']
+    assistant_id = data['assistant_id']
+    thread = get_or_create_thread(thread_id)
+    assistant = get_or_create_assistant(assistant_id)
+    openai.beta.threads.messages.create(thread_id=thread.id, role='user', content=message_with_context)
+    instructions = f'Reply to the message above the delimiter. Use the context below the delimiter in your reply. The delimiter is {delimiter}.\n\n'
+    run = openai.beta.threads.runs.create(thread_id=thread.id, assistant_id=assistant.id, instructions=instructions)
+    return {
+        'thread_id': thread.id,
+        'run_id': run.id,
+        'assistant_id': assistant.id
+    }
 
 @app.get('/')
 def hello_world():
