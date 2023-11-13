@@ -47,12 +47,11 @@ def summarize():
     assistant_id = data['assistant_id']
     url = data['url']
     text = data['text']
-    # TODO: Divide and conquer the huge texts with recursive summaries...
-    if len(text) > 32768:
-        text = text[0:32765]
     thread = get_or_create_thread(thread_id)
     assistant = get_or_create_assistant(assistant_id)
     content = f'Summarize {url}\n\n{delimiter}\n\n{text}'
+    if len(content) > 32000:
+        content = content[0:32000]
     openai.beta.threads.messages.create(thread_id=thread.id, role='user', content=content)
     instructions = f'Summarize the text below the delimiter. The delimiter is {delimiter}.'
     run = openai.beta.threads.runs.create(thread_id=thread.id, assistant_id=assistant.id, instructions=instructions)
