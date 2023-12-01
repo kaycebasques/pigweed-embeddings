@@ -109,6 +109,8 @@ def history():
     response['history'].reverse()
     return response
 
+# TODO: Add exception handling here. Errors originate from here when
+# Supabase instance is paused.
 def create_message_with_context(message):
     model = get_embedding_model()
     embedding_response = openai.embeddings.create(input=message, model=model)
